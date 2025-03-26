@@ -1,68 +1,41 @@
-import os
-import json
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 import uuid
-import asyncio
-import websockets
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from threading import Thread
 
-HTTP_PORT = 8000
-WS_PORT = 8001
-clients = {}
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-async def websocket_handler(websocket):
-    try:
-        client_id = str(uuid.uuid4())
-        clients[client_id] = websocket
-        
-        await websocket.send(json.dumps({
-            'type': 'init',
-            'id': client_id,
-            'players': [pid for pid in clients if pid != client_id]
-        }))
-        
-        await broadcast({
-            'type': 'newPlayer',
-            'id': client_id
-        })
+players = {}
 
-        async for message in websocket:
-            data = json.loads(message)
-            if data['type'] == 'state':
-                await broadcast({
-                    'type': 'update',
-                    'id': client_id,
-                    'state': data['state']
-                })
-                
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        if client_id in clients:
-            await broadcast({'type': 'removePlayer', 'id': client_id})
-            del clients[client_id]
-
-async def broadcast(message):
-    for ws in list(clients.values()):
-        try:
-            await ws.send(json.dumps(message))
-        except:
-            pass
-
-def start_http_server():
-    class Handler(SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, directory=os.getcwd(), **kwargs)
+@socketio.on('connect')
+def handle_connect():
+    player_id = str(uuid.uuid4())
+    players[player_id] = {'position': [0, 0, 0], 'quaternion': [0, 0, 0, 1]}
     
-    httpd = ThreadingHTTPServer(("", HTTP_PORT), Handler)
-    print(f"HTTP server running on port {HTTP_PORT}")
-    httpd.serve_forever()
+    # Надсилаємо новому клієнту його ID та список гравців
+    emit('init', {'id': player_id, 'players': players})
+    
+    # Сповіщаємо всіх про нового гравця
+    emit('new_player', {'id': player_id}, broadcast=True)
 
-async def start_websocket_server():
-    async with websockets.serve(websocket_handler, "0.0.0.0", WS_PORT):
-        print(f"WebSocket server running on port {WS_PORT}")
-        await asyncio.Future()
+@socketio.on('disconnect')
+def handle_disconnect():
+    player_id = request.sid
+    if player_id in players:
+        del players[player_id]
+        emit('player_left', {'id': player_id}, broadcast=True)
+
+@socketio.on('update_state')
+def handle_state_update(data):
+    player_id = request.sid
+    if player_id in players:
+        players[player_id] = data
+        emit('state_update', {'id': player_id, 'state': data}, broadcast=True)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    Thread(target=start_http_server, daemon=True).start()
-    asyncio.run(start_websocket_server())
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
