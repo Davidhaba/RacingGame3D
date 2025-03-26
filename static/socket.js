@@ -29,7 +29,7 @@ socket.on('player_left', (data) => {
 });
 
 function sendState() {
-    if (playerId && window.car?.body) {
+    if (playerId && car?.body) {
         const state = {
             position: {
                 x: car.body.position.x,
