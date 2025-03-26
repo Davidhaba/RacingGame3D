@@ -251,7 +251,7 @@ function updateHUD() { document.getElementById('speed').textContent = (car.body.
 
 function animate() {
     const n = performance.now(), d = Math.min((n - lastTime) / 1000, 0.1); lastTime = n;
-    if (!paused) { gainNode.gain.linearRampToValueAtTime(carSoundVolume, audioContext.currentTime + 0.1); updatePhysics(d); updateCamera(); sendState(); } else gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
+    if (!paused) { gainNode.gain.linearRampToValueAtTime(carSoundVolume, audioContext.currentTime + 0.1); updatePhysics(d); updateCamera(); } else gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
     updateHUD(); renderer.render(scene, camera); requestAnimationFrame(animate);
 }
 animate();
