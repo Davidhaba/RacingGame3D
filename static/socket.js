@@ -1,82 +1,26 @@
 const socket = io();
-
-let playerId;
+let playerId = null;
 const otherPlayers = {};
-
-const addPlayer = id => {
-    if (id !== playerId && !otherPlayers[id]) {
-        const { mesh, body } = createCar();
-        const text = createTextSprite(id);
-        text.position.set(0, 0, 0);
-        mesh.add(text);
-        otherPlayers[id] = { mesh, body };
-    }
-}, 
-
-createTextSprite = t => {
-    const s = 10, f = 3, 
-          canvas = document.createElement("canvas"),
-          ctx = canvas.getContext("2d"),
-          renderSize = f * s;
-    
-    ctx.font = `Bold ${renderSize}px Arial`;
-    const width = Math.ceil(ctx.measureText(t).width * 1.1),
-          height = Math.ceil(renderSize * 1.5);
-    
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = (width/s) + "px";
-    canvas.style.height = (height/s) + "px";
-    
-    ctx.font = `Bold ${renderSize}px Arial`;
-    ctx.fillStyle = "white";
-    ctx.textBaseline = "top";
-    ctx.fillText(t, 0, 0);
-    
-    const texture = new THREE.Texture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.needsUpdate = true;
-    
-    const sprite = new THREE.Sprite(
-        new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
-    );
-    sprite.scale.set(width/s*0.1, height/s*0.1, 1);
-    return sprite;
-},
-
-removePlayer = id => {
-    if (!otherPlayers[id]) return;
-    scene.remove(otherPlayers[id].mesh);
-    world.removeBody(otherPlayers[id].body);
-    delete otherPlayers[id];
-};
 
 socket.on('init', (data) => {
     playerId = data.id;
-    Object.keys(data.players).forEach(id => {
-        if(id !== playerId) addPlayer(id);
+    console.log('Ваш ID:', playerId);
+    data.players.forEach(id => {
+        if (id !== playerId) {
+            addPlayer(id);
+        }
     });
 });
 
 socket.on('new_player', (data) => {
-    if(data.id !== playerId) addPlayer(data.id);
+    if (data.id !== playerId) {
+        addPlayer(data.id);
+    }
 });
 
 socket.on('state_update', (data) => {
-    if (data.id === playerId) return;
     if (otherPlayers[data.id]) {
-        otherPlayers[data.id].body.position.set(
-            data.state.position.x,
-            data.state.position.y,
-            data.state.position.z
-        );
-        otherPlayers[data.id].body.quaternion.set(
-            data.state.quaternion.x,
-            data.state.quaternion.y,
-            data.state.quaternion.z,
-            data.state.quaternion.w
-        );
+        updatePlayer(data.id, data.state);
     }
 });
 
@@ -85,7 +29,7 @@ socket.on('player_left', (data) => {
 });
 
 function sendState() {
-    if (window.car?.body) {
+    if (playerId && window.car?.body) {
         const state = {
             position: {
                 x: car.body.position.x,
@@ -104,3 +48,50 @@ function sendState() {
 }
 
 setInterval(sendState, 50);
+
+function addPlayer(id) {
+    if (otherPlayers[id]) return;
+    const { mesh, body } = createCar();
+    const text = createTextSprite(id);
+    text.position.set(0, 2, 0);
+    mesh.add(text);
+    otherPlayers[id] = { mesh, body };
+    scene.add(mesh);
+    world.addBody(body);
+}
+function updatePlayer(id, state) {
+    const player = otherPlayers[id];
+    if (!player) return;
+    player.body.position.set(
+        state.position.x,
+        state.position.y,
+        state.position.z
+    );
+    player.mesh.position.copy(player.body.position);
+    player.mesh.quaternion.set(
+        state.quaternion.x,
+        state.quaternion.y,
+        state.quaternion.z,
+        state.quaternion.w
+    );
+}
+
+function removePlayer(id) {
+    if (!otherPlayers[id]) return;
+    scene.remove(otherPlayers[id].mesh);
+    world.removeBody(otherPlayers[id].body);
+    delete otherPlayers[id];
+}
+
+function createTextSprite(text) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'white';
+    ctx.fillText(text, 10, 20);
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: texture, transparent: true })
+    );
+}
