@@ -36,7 +36,7 @@ def handle_state_update(data):
         emit('state_update', {
             'id': player_id,
             'state': data
-        }, broadcast=True, include_self=False)
+        }, broadcast=True)
         
     except Exception as e:
         print(f"Помилка оновлення стану: {e}")
