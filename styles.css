@@ -1,0 +1,273 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #1a1a1a;
+    touch-action: none;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: all 0.5s ease;
+    color: white;
+}
+
+#loading-progress {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 20px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+#loading-bar {
+    width: 0%;
+    height: 100%;
+    background: #00fffb;
+    transition: width 0.3s ease;
+}
+
+#continue-btn {
+    transition: all 0.5s ease;
+}
+
+#continue-btn.hide {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+canvas {
+    display: block;
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #00fffb;
+    font-family: 'Arial', sans-serif;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: 2px solid #00fffb;
+    box-shadow: 0 0 20px rgba(0, 255, 251, 0.4);
+}
+
+#controls {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    display: grid;
+    grid-template-areas:
+        ". up ."
+        "left brake right"
+        ". down .";
+    gap: 15px;
+}
+
+#control-main {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.control-joystick-btn,
+.control-main-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #00fffb;
+    cursor: pointer;
+    color: #00fffb;
+    box-shadow: 0 4px 15px rgba(0, 255, 251, 0.3);
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.control-main-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+}
+
+.control-joystick-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-joystick-btn:hover,
+.control-main-btn:hover {
+    background: #00fffb;
+    color: #000;
+}
+
+.control-joystick-btn:active,
+.control-main-btn:active {
+    transform: scale(0.9);
+}
+
+#forward {
+    grid-area: up;
+}
+
+#left {
+    grid-area: left;
+}
+
+#right {
+    grid-area: right;
+}
+
+#backward {
+    grid-area: down;
+}
+
+#brake {
+    grid-area: brake;
+    background: rgba(255, 0, 0, 0.7);
+    border-color: #ff4444;
+}
+
+#joystick-container {
+    position: fixed;
+    bottom: 50px;
+    left: 50px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+#joystick {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    touch-action: none;
+}
+
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.settings-panel {
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #00fffb;
+    box-shadow: 0 0 30px rgba(0, 255, 251, 0.3);
+    color: white;
+    max-width: 100vw;
+    max-height: 100vh;
+    box-sizing: border-box;
+}
+
+.key-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    color: white;
+}
+
+.key-input {
+    background: transparent;
+    border: 1px solid #00fffb;
+    border-radius: 5px;
+    color: #00fffb;
+    padding: 5px 10px;
+    width: 80px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    overflow: auto;
+}
+
+.tab-link {
+    background: transparent;
+    border: none;
+    color: #00fffb;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.tab-link.active {
+    background: #00fffb;
+    color: #000;
+    border-radius: 5px;
+}
+
+.tab-content {
+    display: none;
+    height: 100%;
+    overflow: auto;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    color: white;
+}
+.setting-item span,
+.key-item label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.setting-item input[type="range"],
+.setting-item select {
+    background: black;
+    border: 1px solid #00fffb;
+    border-radius: 5px;
+    color: #00fffb;
+    cursor: pointer;
+}
+.setting-item select {
+    padding: 5px;
+}

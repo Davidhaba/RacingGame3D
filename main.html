@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Game 3D</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="loading-screen">
+        <div class="loading-text">Loading...</div>
+        <div id="loading-progress">
+            <div id="loading-bar"></div>
+        </div>
+        <button class="control-main-btn hide" id="continue-btn" onclick="startGame()">Continue</button>
+    </div>
+
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="tabs">
+                <button class="tab-link active" data-tab="controlsTab">Controls</button>
+                <button class="tab-link" data-tab="graphicsTab">Graphics</button>
+                <button class="tab-link" data-tab="audioTab">Audio</button>
+                <button class="tab-link" data-tab="keyboardTab">Keyboard</button>
+            </div>
+
+            <div id="controlsTab" class="tab-content">
+                <h3>Control Settings</h3>
+                <div class="setting-item">
+                    <span>Control Type</span>
+                    <select id="controlTypeSelect">
+                        <option value="joystick">Joystick</option>
+                        <option value="buttons">Buttons</option>
+                        <option value="tilt">Tilt</option>
+                    </select>
+                </div>
+            </div>
+            <div id="keyboardTab" class="tab-content">
+                <h3>Keyboard Settings</h3>
+                <div class="key-item">
+                    <label for="forwardKey">Forward</label>
+                    <input id="forwardKey" class="key-input" name="forwardKey" data-action="forward" value="ArrowUp" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="backwardKey">Backward</label>
+                    <input id="backwardKey" class="key-input" name="backwardKey" data-action="backward" value="ArrowDown" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="leftKey">Left</label>
+                    <input id="leftKey" class="key-input" name="leftKey" data-action="left" value="ArrowLeft" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="rightKey">Right</label>
+                    <input id="rightKey" class="key-input" name="rightKey" data-action="right" value="ArrowRight" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="brakeKey">Brake</label>
+                    <input id="brakeKey" class="key-input" name="brakeKey" data-action="brake" value="Space" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="resetKey">Reset</label>
+                    <input id="resetKey" class="key-input" name="resetKey" data-action="reset" value="KeyR" readonly>
+                </div>
+                <div class="key-item">
+                    <label for="slowKey">Slow Motion</label>
+                    <input id="slowKey" class="key-input" name="slowKey" data-action="slow" value="Tab" readonly>
+                </div>
+            </div>
+
+            <div id="graphicsTab" class="tab-content" style="display: none;">
+                <h3>Graphics Settings</h3>
+                <div class="setting-item">
+                    <span>Shadow Quality</span>
+                    <select id="shadowQuality">
+                        <option value="off">Off</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high" selected>High</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <span>Texture Quality</span>
+                    <select id="textureQuality">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high" selected>High</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <span>Render Scale</span>
+                    <select id="renderScale">
+                        <option value="0.2">20%</option>
+                        <option value="0.50">50%</option>
+                        <option value="1" selected>100%</option>
+                        <option value="1.5">150%</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="audioTab" class="tab-content" style="display: none;">
+                <h3>Audio Settings</h3>
+                <div class="setting-item">
+                    <span>Master Volume</span>
+                    <input type="range" id="masterVolume" min="0" max="0.5" step="0.1" value="0.5">
+                </div>
+            </div>
+
+            <button class="control-main-btn" style="margin-top:15px" onclick="closeSettings()">Close</button>
+        </div>
+    </div>
+
+    <div id="hud">
+        <div>Speed: <span id="speed">0</span> km/h</div>
+        <div>Steering: <span id="steering">0</span>%</div>
+    </div>
+    <div id="control-main">
+        <button class="control-main-btn" id="settings-btn">Settings</button>
+        <button class="control-main-btn" id="reset-btn">Reset</button>
+        <button class="control-main-btn" id="slow">Slow</button>
+    </div>
+
+    <div id="controls">
+        <button class="control-joystick-btn" id="forward">↑</button>
+        <button class="control-joystick-btn" id="left">←</button>
+        <button class="control-joystick-btn" id="brake">⏹</button>
+        <button class="control-joystick-btn" id="right">→</button>
+        <button class="control-joystick-btn" id="backward">↓</button>
+    </div>
+    <div id="joystick-container">
+        <div id="joystick"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/web_socket.js"></script>
+</body>
+
+</html>
