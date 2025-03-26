@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request  # Додано імпорт request
-from flask_socketio import SocketIO, emit  # Додано імпорт emit
+from flask import Flask, render_template, send_from_directory, request
+from flask_socketio import SocketIO, emit
 import uuid
 
 app = Flask(__name__)
@@ -10,38 +10,29 @@ players = {}
 
 @socketio.on('connect')
 def handle_connect():
-    # Генеруємо унікальний ідентифікатор гравця
     player_id = str(uuid.uuid4())
     players[player_id] = {
         'position': [0, 0, 0],
         'quaternion': [0, 0, 0, 1]
     }
-    
-    # Надсилаємо ініціалізаційні дані клієнту
     emit('init', {
         'id': player_id,
         'players': list(players.keys())
     })
-    
-    # Сповіщаємо інших гравців про нового учасника
     emit('new_player', {'id': player_id}, broadcast=True, include_self=False)
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    player_id = request.sid  # Отримуємо ідентифікатор сесії
+    player_id = request.sid
     if player_id in players:
-        # Видаляємо гравця зі списку
         del players[player_id]
-        # Сповіщаємо про відключення
         emit('player_left', {'id': player_id}, broadcast=True)
 
 @socketio.on('update_state')
 def handle_state_update(data):
     player_id = request.sid
     if player_id in players:
-        # Оновлюємо стан гравця
         players[player_id] = data
-        # Розсилаємо оновлення іншим гравцям
         emit('state_update', {
             'id': player_id,
             'state': data
@@ -50,6 +41,10 @@ def handle_state_update(data):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/textures/<path:filename>')
+def serve_textures(filename):
+    return send_from_directory('textures', filename)
 
 if __name__ == '__main__':
     socketio.run(app, 
