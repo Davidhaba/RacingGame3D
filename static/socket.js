@@ -45,14 +45,6 @@ createTextSprite = t => {
     return sprite;
 },
 
-updatePlayer = (id, { position, quaternion }) => {
-    if (id === playerId || !otherPlayers[id]) return;
-    otherPlayers[id].body.position.copy(position);
-    otherPlayers[id].body.quaternion.copy(quaternion);
-    otherPlayers[id].mesh.position.copy(position);
-    otherPlayers[id].mesh.quaternion.copy(quaternion);
-},
-
 removePlayer = id => {
     if (!otherPlayers[id]) return;
     scene.remove(otherPlayers[id].mesh);
@@ -72,8 +64,19 @@ socket.on('new_player', (data) => {
 });
 
 socket.on('state_update', (data) => {
-    if(otherPlayers[data.id]) {
-        updatePlayerPosition(data.id, data.state);
+    if (data.id === playerId) return;
+    if (otherPlayers[data.id]) {
+        otherPlayers[data.id].body.position.set(
+            data.state.position.x,
+            data.state.position.y,
+            data.state.position.z
+        );
+        otherPlayers[data.id].body.quaternion.set(
+            data.state.quaternion.x,
+            data.state.quaternion.y,
+            data.state.quaternion.z,
+            data.state.quaternion.w
+        );
     }
 });
 
