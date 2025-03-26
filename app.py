@@ -30,13 +30,16 @@ def handle_disconnect():
 
 @socketio.on('update_state')
 def handle_state_update(data):
-    player_id = request.sid
-    if player_id in players:
+    try:
+        player_id = request.sid
         players[player_id] = data
         emit('state_update', {
             'id': player_id,
             'state': data
         }, broadcast=True, include_self=False)
+        
+    except Exception as e:
+        print(f"Помилка оновлення стану: {e}")
 
 @app.route('/')
 def index():
